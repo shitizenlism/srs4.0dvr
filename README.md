@@ -1,4 +1,4 @@
-# SRS(Simple Realtime Server)
+# SRS-DVR
 
 ![](http://ossrs.net/gif/v1/sls.gif?site=github.com&path=/srs/4.0release)
 [![](https://github.com/ossrs/srs/actions/workflows/codeql-analysis.yml/badge.svg?branch=4.0release)](https://github.com/ossrs/srs/actions?query=workflow%3ACodeQL+branch%3A4.0release)
