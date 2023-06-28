@@ -804,6 +804,24 @@ if [[ $SRS_SRT == YES ]]; then
     if [ ! -f ${SRS_OBJS}/srt/lib/libsrt.a ]; then echo "Build srt-1-fit failed."; exit -1; fi
 fi
 
+if [[ $SRS_REDIS == YES ]]; then
+    if [[ -f ${SRS_OBJS}/${SRS_PLATFORM}/redis/lib/libhiredis.a ]]; then
+        echo "libhiredis.a is ok.";
+    else
+        echo "Build libhiredis"
+        (
+            rm -rf ${SRS_OBJS}/${SRS_PLATFORM}/hiredis-1.1.0 && cd ${SRS_OBJS}/${SRS_PLATFORM} &&
+            cp -R ../../3rdparty/hiredis-1.1.0 hiredis-1.1.0 && cd hiredis-1.1.0 &&
+            make && make install
+        )
+        ret=$?; if [[ $ret -ne 0 ]]; then echo "Build libhiredis failed, ret=$ret"; exit $ret; fi
+    fi
+    # Always update the links.
+    (cd ${SRS_OBJS}/${SRS_PLATFORM} && rm -rf redis && ln -sf hiredis-1.1.0/_release redis)
+    (cd ${SRS_OBJS} && rm -rf redis && ln -sf ${SRS_PLATFORM}/hiredis-1.1.0/_release redis)
+    if [ ! -f ${SRS_OBJS}/redis/lib/libhiredis.a ]; then echo "Build libhiredis failed."; exit -1; fi
+fi
+
 #####################################################################################
 # build utest code
 #####################################################################################
