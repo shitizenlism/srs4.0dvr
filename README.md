@@ -15,9 +15,10 @@
 [![](https://badgen.net/badge/srs/stackoverflow/orange?icon=terminal)](https://stackoverflow.com/questions/tagged/simple-realtime-server)
 [![](https://img.shields.io/docker/pulls/ossrs/srs)](https://hub.docker.com/r/ossrs/srs/tags)
 
-SRS/4.0，[Leo](https://github.com/ossrs/srs/wiki/Product#release40)，是一个简单高效的实时视频服务器，支持RTMP/WebRTC/HLS/HTTP-FLV/SRT。
-
-SRS is a simple, high efficiency and realtime video server, supports RTMP/WebRTC/HLS/HTTP-FLV/SRT.
+按需录像需求：1. 时延短，接收和执行录像指令的时间要快，100ms以内。2. 录像文件时长不固定，定在[3s, 1800s]这个区间。最短3s，最长30min。
+用法：外部进程向redis-queue发送record-start/record-stop指令来控制录像开始和结束。
+Cmd格式：start-record|stop-record,<videoID>,<recordFilename>
+redis-queue: {app}-{stream}  //rtmp-url格式：rtmp://host:1935/{app}/{stream}
 
 [![SRS Overview](https://ossrs.net/wiki/images/SRS-SingleNode-4.0-sd.png?v=114)](https://ossrs.net/wiki/images/SRS-SingleNode-4.0-hd.png)
 
