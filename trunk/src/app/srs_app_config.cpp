@@ -6605,27 +6605,6 @@ int SrsConfig::get_dvr_time_jitter(string vhost)
 
 string SrsConfig::get_redis_server_host()
 {
-    SrsConfDirective* conf = root->get("redis_server");
-    return get_redis_server_host(conf);
-}
-string SrsConfig::get_redis_server_port()
-{
-    SrsConfDirective* conf = root->get("redis_server");
-    return get_redis_server_port(conf);
-}
-string SrsConfig::get_redis_server_pass()
-{
-    SrsConfDirective* conf = root->get("redis_server");
-    return get_redis_server_pass(conf);
-}
-string SrsConfig::get_redis_server_db()
-{
-    SrsConfDirective* conf = root->get("redis_server");
-    return get_redis_server_db(conf);
-}
-
-string SrsConfig::get_redis_server_host(SrsConfDirective* conf)
-{
     static string DEFAULT = "127.0.0.1";
     
     SrsConfDirective* conf = root->get("redis_server");
@@ -6640,7 +6619,8 @@ string SrsConfig::get_redis_server_host(SrsConfDirective* conf)
     
     return conf->arg0();
 }
-string SrsConfig::get_redis_server_port(SrsConfDirective* conf)
+
+string SrsConfig::get_redis_server_port()
 {
     static string DEFAULT = "6379";
     
@@ -6656,7 +6636,8 @@ string SrsConfig::get_redis_server_port(SrsConfDirective* conf)
     
     return conf->arg0();
 }
-string SrsConfig::get_redis_server_pass(SrsConfDirective* conf)
+
+string SrsConfig::get_redis_server_pass()
 {
     static string DEFAULT = "";
     
@@ -6672,7 +6653,8 @@ string SrsConfig::get_redis_server_pass(SrsConfDirective* conf)
     
     return conf->arg0();
 }
-string SrsConfig::get_redis_server_db(SrsConfDirective* conf)
+
+string SrsConfig::get_redis_server_db()
 {
     static string DEFAULT = "1";
     

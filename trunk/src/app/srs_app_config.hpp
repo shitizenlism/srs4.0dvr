@@ -976,11 +976,6 @@ public:
     virtual bool get_raw_api_allow_update();
 
 // redis_server section
-private:
-    virtual std::string get_redis_server_host(SrsConfDirective* conf);
-    virtual std::string get_redis_server_port(SrsConfDirective* conf);
-    virtual std::string get_redis_server_pass(SrsConfDirective* conf);
-    virtual std::string get_redis_server_db(SrsConfDirective* conf);
 public:
     virtual std::string get_redis_server_host();
     virtual std::string get_redis_server_port();
