@@ -140,6 +140,10 @@ if [[ $SRS_SHARED_ST == YES ]]; then LibSTfile="-L${LibSTRoot} -lst"; fi
 if [[ $SRS_RTC == YES ]]; then
   LibSrtpRoot="${SRS_OBJS_DIR}/srtp2/include"; LibSrtpFile="${SRS_OBJS_DIR}/srtp2/lib/libsrtp2.a"
 fi
+# redis
+if [[ $SRS_REDIS == YES ]]; then
+  LibRedisRoot="${SRS_OBJS_DIR}/redis/include"; LibRedisFile="${SRS_OBJS_DIR}/redis/lib/libhiredis.a"
+fi
 
 # FFMPEG for WebRTC transcoding, such as aac to opus.
 if [[ $SRS_FFMPEG_FIT == YES ]]; then
@@ -235,6 +239,9 @@ if [[ $SRS_RTC == YES ]]; then
     MODULE_FILES+=("srs_rtc_stun_stack")
     ModuleLibIncs+=(${LibSrtpRoot})
 fi
+if [[ $SRS_REDIS == YES ]]; then
+    ModuleLibIncs+=(${LibRedisRoot})
+fi
 if [[ $SRS_FFMPEG_FIT == YES ]]; then
     ModuleLibIncs+=("${LibFfmpegRoot[*]}")
 fi
@@ -261,6 +268,9 @@ if [ $SRS_GPERF = YES ]; then
 fi
 if [[ $SRS_RTC == YES ]]; then
     ModuleLibIncs+=(${LibSrtpRoot})
+fi
+if [[ $SRS_REDIS == YES ]]; then
+    ModuleLibIncs+=(${LibRedisRoot})
 fi
 if [[ $SRS_FFMPEG_FIT == YES ]]; then
     ModuleLibIncs+=("${LibFfmpegRoot[*]}")
@@ -304,6 +314,9 @@ ModuleLibIncs=(${SRS_OBJS_DIR} ${LibSTRoot} ${LibGperfRoot} ${LibSSLRoot})
 if [[ $SRS_RTC == YES ]]; then
     ModuleLibIncs+=(${LibSrtpRoot})
 fi
+if [[ $SRS_REDIS == YES ]]; then
+    ModuleLibIncs+=(${LibRedisRoot})
+fi
 if [[ $SRS_FFMPEG_FIT == YES ]]; then
     ModuleLibIncs+=("${LibFfmpegRoot[*]}")
 fi
@@ -321,6 +334,9 @@ MODULE_DEPENDS=("CORE" "KERNEL" "PROTOCOL")
 ModuleLibIncs=(${SRS_OBJS_DIR} ${LibSTRoot} ${LibGperfRoot} ${LibSSLRoot})
 if [[ $SRS_RTC == YES ]]; then
     ModuleLibIncs+=(${LibSrtpRoot})
+fi
+if [[ $SRS_REDIS == YES ]]; then
+    ModuleLibIncs+=(${LibRedisRoot})
 fi
 if [[ $SRS_FFMPEG_FIT == YES ]]; then
     ModuleLibIncs+=("${LibFfmpegRoot[*]}")
@@ -356,6 +372,9 @@ ModuleLibFiles=(${LibSTfile} ${LibSSLfile} ${LibGperfFile})
 if [[ $SRS_RTC == YES ]]; then
     ModuleLibFiles+=(${LibSrtpFile})
 fi
+if [[ $SRS_REDIS == YES ]]; then
+    ModuleLibFiles+=(${LibRedisFile})
+fi
 if [[ $SRS_FFMPEG_FIT == YES ]]; then
     ModuleLibFiles+=("${LibFfmpegFile[*]}")
 fi
@@ -367,6 +386,9 @@ MODULE_OBJS="${CORE_OBJS[@]} ${KERNEL_OBJS[@]} ${PROTOCOL_OBJS[@]} ${APP_OBJS[@]
 ModuleLibIncs=(${SRS_OBJS_DIR} ${LibSTRoot} ${LibGperfRoot} ${LibSSLRoot})
 if [[ $SRS_RTC == YES ]]; then
     ModuleLibIncs+=(${LibSrtpRoot})
+fi
+if [[ $SRS_REDIS == YES ]]; then
+    ModuleLibIncs+=(${LibRedisRoot})
 fi
 if [[ $SRS_FFMPEG_FIT == YES ]]; then
     ModuleLibIncs+=("${LibFfmpegRoot[*]}")
@@ -386,6 +408,9 @@ MODULE_OBJS="${CORE_OBJS[@]} ${KERNEL_OBJS[@]} ${PROTOCOL_OBJS[@]} ${MAIN_OBJS[@
 ModuleLibFiles=(${LibSTfile} ${LibSSLfile} ${LibGperfFile})
 if [[ $SRS_RTC == YES ]]; then
     ModuleLibFiles+=(${LibSrtpFile})
+fi
+if [[ $SRS_REDIS == YES ]]; then
+    ModuleLibFiles+=(${LibRedisFile})
 fi
 if [[ $SRS_FFMPEG_FIT == YES ]]; then
     ModuleLibFiles+=("${LibFfmpegFile[*]}")
@@ -412,6 +437,9 @@ if [ $SRS_UTEST = YES ]; then
     if [[ $SRS_RTC == YES ]]; then
         ModuleLibIncs+=(${LibSrtpRoot})
     fi
+    if [[ $SRS_REDIS == YES ]]; then
+        ModuleLibIncs+=(${LibRedisRoot})
+    fi
     if [[ $SRS_FFMPEG_FIT == YES ]]; then
         ModuleLibIncs+=("${LibFfmpegRoot[*]}")
     fi
@@ -421,6 +449,9 @@ if [ $SRS_UTEST = YES ]; then
     ModuleLibFiles=(${LibSTfile} ${LibSSLfile})
     if [[ $SRS_RTC == YES ]]; then
         ModuleLibFiles+=(${LibSrtpFile})
+    fi
+    if [[ $SRS_REDIS == YES ]]; then
+        ModuleLibFiles+=(${LibRedisFile})
     fi
     if [[ $SRS_FFMPEG_FIT == YES ]]; then
         ModuleLibFiles+=("${LibFfmpegFile[*]}")
