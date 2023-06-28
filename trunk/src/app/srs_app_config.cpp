@@ -2468,6 +2468,7 @@ srs_error_t SrsConfig::check_normal_config()
             && n != "srs_log_tank" && n != "srs_log_level" && n != "srs_log_file"
             && n != "max_connections" && n != "daemon" && n != "heartbeat"
             && n != "http_api" && n != "stats" && n != "vhost" && n != "pithy_print_ms"
+            && n != "redis_server" 
             && n != "http_server" && n != "stream_caster" && n != "rtc_server" && n != "srt_server"
             && n != "utc_time" && n != "work_dir" && n != "asprocess" && n != "server_id"
             && n != "ff_log_level" && n != "grace_final_wait" && n != "force_grace_quit"
@@ -2498,6 +2499,15 @@ srs_error_t SrsConfig::check_normal_config()
             }
         }
     }
+    if (true) {
+        SrsConfDirective* conf = root->get("redis_server");
+        for (int i = 0; conf && i < (int)conf->directives.size(); i++) {
+            string n = conf->at(i)->name;
+            if (n != "host" && n != "port" && n != "pass" && n != "db") {
+                return srs_error_new(ERROR_SYSTEM_CONFIG_INVALID, "illegal redis_server.%s", n.c_str());
+            }
+        }
+    }    
     if (true) {
         SrsConfDirective* conf = root->get("http_server");
         for (int i = 0; conf && i < (int)conf->directives.size(); i++) {
@@ -6591,6 +6601,92 @@ int SrsConfig::get_dvr_time_jitter(string vhost)
     }
     
     return srs_time_jitter_string2int(conf->arg0());
+}
+
+string SrsConfig::get_redis_server_host()
+{
+    SrsConfDirective* conf = root->get("redis_server");
+    return get_redis_server_host(conf);
+}
+string SrsConfig::get_redis_server_port()
+{
+    SrsConfDirective* conf = root->get("redis_server");
+    return get_redis_server_port(conf);
+}
+string SrsConfig::get_redis_server_pass()
+{
+    SrsConfDirective* conf = root->get("redis_server");
+    return get_redis_server_pass(conf);
+}
+string SrsConfig::get_redis_server_db()
+{
+    SrsConfDirective* conf = root->get("redis_server");
+    return get_redis_server_db(conf);
+}
+
+string SrsConfig::get_redis_server_host(SrsConfDirective* conf)
+{
+    static string DEFAULT = "127.0.0.1";
+    
+    SrsConfDirective* conf = root->get("redis_server");
+    if (!conf) {
+        return DEFAULT;
+    }
+    
+    conf = conf->get("host");
+    if (!conf || conf->arg0().empty()) {
+        return DEFAULT;
+    }
+    
+    return conf->arg0();
+}
+string SrsConfig::get_redis_server_port(SrsConfDirective* conf)
+{
+    static string DEFAULT = "6379";
+    
+    SrsConfDirective* conf = root->get("redis_server");
+    if (!conf) {
+        return DEFAULT;
+    }
+    
+    conf = conf->get("port");
+    if (!conf || conf->arg0().empty()) {
+        return DEFAULT;
+    }
+    
+    return conf->arg0();
+}
+string SrsConfig::get_redis_server_pass(SrsConfDirective* conf)
+{
+    static string DEFAULT = "";
+    
+    SrsConfDirective* conf = root->get("redis_server");
+    if (!conf) {
+        return DEFAULT;
+    }
+    
+    conf = conf->get("pass");
+    if (!conf || conf->arg0().empty()) {
+        return DEFAULT;
+    }
+    
+    return conf->arg0();
+}
+string SrsConfig::get_redis_server_db(SrsConfDirective* conf)
+{
+    static string DEFAULT = "1";
+    
+    SrsConfDirective* conf = root->get("redis_server");
+    if (!conf) {
+        return DEFAULT;
+    }
+    
+    conf = conf->get("db");
+    if (!conf || conf->arg0().empty()) {
+        return DEFAULT;
+    }
+    
+    return conf->arg0();
 }
 
 bool SrsConfig::get_http_api_enabled()
