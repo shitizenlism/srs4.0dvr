@@ -1,0 +1,11 @@
+prefix=/home/opc/github/srs4.0dvr/trunk/3rdparty/hiredis-1.1.0/_release
+exec_prefix=${prefix}
+libdir=/home/opc/github/srs4.0dvr/trunk/3rdparty/hiredis-1.1.0/_release/lib
+includedir=/home/opc/github/srs4.0dvr/trunk/3rdparty/hiredis-1.1.0/_release/include
+pkgincludedir=/home/opc/github/srs4.0dvr/trunk/3rdparty/hiredis-1.1.0/_release/include/hiredis
+
+Name: hiredis
+Description: Minimalistic C client library for Redis.
+Version: 1.1.0
+Libs: -L${libdir} -lhiredis
+Cflags: -I${pkgincludedir} -I${includedir} -D_FILE_OFFSET_BITS=64
