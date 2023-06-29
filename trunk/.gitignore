@@ -50,3 +50,7 @@ bug
 /research/thread-model/thread-local
 *.gcp
 *.svg
+logs/
+*.log
+*.pid
+
