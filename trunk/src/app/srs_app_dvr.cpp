@@ -25,6 +25,7 @@ using namespace std;
 #include <srs_app_utility.hpp>
 #include <srs_kernel_mp4.hpp>
 #include <srs_app_fragment.hpp>
+#include <srs_app_redis.hpp>
 
 SrsDvrSegmenter::SrsDvrSegmenter()
 {
@@ -761,8 +762,22 @@ srs_error_t SrsDvrSegmentPlan::initialize(SrsOriginHub* h, SrsDvrSegmenter* s, S
     }
     
     wait_keyframe = _srs_config->get_dvr_wait_keyframe(req->vhost);
-    
     cduration = _srs_config->get_dvr_duration(req->vhost);
+
+    string host = _srs_config->get_redis_server_host();
+    string port = _srs_config->get_redis_server_port();
+    string pass = _srs_config->get_redis_server_pass();
+    string db = _srs_config->get_redis_server_db();
+    if (host != "" && port != "" && db != ""){
+        int ret=redis_init(host.c_str(),atoi(port.c_str()), pass.c_str(), atoi(db.c_str()));
+        srs_trace("redis_init(%s:%s,%s,db=%s),ret=%d\n", host.c_str(), port.c_str(), pass.c_str(), db.c_str(), ret);
+        if (ret < 0){
+            srs_warn("Please check if redis-server configured correctly and started. ret=%d\n",ret);
+        }
+	else {
+	    srs_trace("redis-server connected!");
+	}
+    }
     
     return srs_success;
 }

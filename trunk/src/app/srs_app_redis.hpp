@@ -25,8 +25,8 @@
 		int db;
 	}RedisConn_T;
 
-	int redis_Close();
-	int redis_Init(char *hostname,int port,char *authpass,int db);
+	int redis_close();
+	int redis_init(const char *hostname,int port,const char *authpass,int db);
 	int redis_flushdb();
 	int redis_queue_rpush(const char *key, char *value);
 	int redis_queue_lpop(const char *key, char *value);

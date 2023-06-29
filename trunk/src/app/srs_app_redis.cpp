@@ -96,7 +96,7 @@ static redisContext *_connect(struct config config)
     return _select_database(c);
 }
 
-int redis_Close()
+int redis_close()
 {
 	if (gRedisConn.hdl){
 		redisFree(gRedisConn.hdl); gRedisConn.hdl=NULL;
@@ -106,16 +106,20 @@ int redis_Close()
 }
 
 
-int redis_Init(char *hostname,int port,char *authpass,int db)
+int redis_init(const char *hostname,int port,const char *authpass,int db)
 {
-	int ret=0;
+    int ret=0;
     redisContext *hdl=NULL;
     redisReply *reply=NULL;
     struct timeval timeout={1,500000};
 
-	if (gRedisConn.hdl){
-		return 0;
-	}
+    if (strlen(hostname)<2 || port<1000){
+        return -1;
+    }
+
+    if (gRedisConn.hdl){
+	return 0;
+    }
 
 	do {
 		hdl=redisConnectWithTimeout(hostname,port,timeout);
