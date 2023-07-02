@@ -118,7 +118,7 @@ int redis_init(const char *hostname,int port,const char *authpass,int db)
     }
 
     if (gRedisConn.hdl){
-	return 0;
+		return 0;
     }
 
 	do {
