@@ -158,6 +158,11 @@ class SrsDvrPlan : public ISrsReloadHandler
 {
 public:
     SrsRequest* req;
+    int dvr_state;	// 0:init, 1:start, 2: stop.
+    std::string dvr_saveFilename;
+    std::string dvr_postfix;
+    std::string dvr_saveFilenameNew;
+
 protected:
     SrsOriginHub* hub;
     SrsDvrSegmenter* segment;

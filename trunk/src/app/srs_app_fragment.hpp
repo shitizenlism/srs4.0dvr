@@ -23,6 +23,7 @@ private:
     std::string filepath;
     // The start DTS in srs_utime_t of segment.
     srs_utime_t start_dts;
+    std::string postfix;
     // Whether current segement contains sequence header.
     bool sequence_header;
 public:
@@ -42,6 +43,7 @@ public:
     virtual std::string fullpath();
     // Set the full path of fragment.
     virtual void set_path(std::string v);
+    virtual std::string get_postfix();
     // Unlink the fragment, to delete the file.
     // @remark Ignore any error.
     virtual srs_error_t unlink_file();

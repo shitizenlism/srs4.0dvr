@@ -102,6 +102,11 @@ string SrsFragment::tmppath()
     return filepath + ".tmp";
 }
 
+string SrsFragment::get_postfix()
+{
+    return postfix;
+}
+
 srs_error_t SrsFragment::unlink_tmpfile()
 {
     srs_error_t err = srs_success;

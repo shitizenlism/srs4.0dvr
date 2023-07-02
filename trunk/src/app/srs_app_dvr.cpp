@@ -839,8 +839,13 @@ srs_error_t SrsDvrSegmentPlan::on_audio(SrsSharedPtrMessage* shared_audio, SrsFo
 {
     srs_error_t err = srs_success;
     
-    if ((err = update_duration(shared_audio)) != srs_success) {
-        return srs_error_wrap(err, "update duration");
+    //if ((err = update_duration(shared_audio)) != srs_success) {
+    //    return srs_error_wrap(err, "update duration");
+    //}
+    int ret=0;
+    ret = update_duration(shared_audio);
+    if (!ret){
+	return err;
     }
     
     if ((err = SrsDvrPlan::on_audio(shared_audio, format)) != srs_success) {
@@ -854,10 +859,15 @@ srs_error_t SrsDvrSegmentPlan::on_video(SrsSharedPtrMessage* shared_video, SrsFo
 {
     srs_error_t err = srs_success;
     
-    if ((err = update_duration(shared_video)) != srs_success) {
-        return srs_error_wrap(err, "update duration");
+    //if ((err = update_duration(shared_video)) != srs_success) {
+    //    return srs_error_wrap(err, "update duration");
+    //}
+    int ret=0;
+    ret = update_duration(shared_video);
+    if (!ret){
+	return err;
     }
-    
+
     if ((err = SrsDvrPlan::on_video(shared_video, format)) != srs_success) {
         return srs_error_wrap(err, "consume video");
     }
@@ -896,7 +906,7 @@ int SrsDvrSegmentPlan::update_duration(SrsSharedPtrMessage* msg)
                 pSubStr[1] = strtok(NULL, sCut);    //tableName
                 pSubStr[2] = strtok(NULL, sCut);    //roundId
                 string roundId = pSubStr[2]!=NULL?pSubStr[2]:"";
-                if (!strcmp(pSubStr[0], MSG_TYPE_START_REC)){
+                if (!strcmp(pSubStr[0], "start_record")){
                     if (dvr_saveFilename.length() == 0){
                         //dvr_saveFilename=(dvr_postfix.length()>=1)?(roundId + dvr_postfix):roundId;
                         dvr_state=2;
@@ -914,7 +924,7 @@ int SrsDvrSegmentPlan::update_duration(SrsSharedPtrMessage* msg)
                     }
                     srs_trace("dvr_saveFilename= %s", dvr_saveFilename.c_str());
                 }
-                else if ((!strcmp(pSubStr[0], MSG_TYPE_STOP_REC))&&(pSubStr[2])){
+                else if ((!strcmp(pSubStr[0], "stop_record"))&&(pSubStr[2])){
                     if (dvr_saveFilename.length() == 0){
                         dvr_saveFilename=(dvr_postfix.length()>=1)?(roundId + dvr_postfix):roundId;
                     }
@@ -929,7 +939,7 @@ int SrsDvrSegmentPlan::update_duration(SrsSharedPtrMessage* msg)
         }
     }
     
-    if (((dvr_ondemand)&&((dvr_state==0)||(dvr_state==1)))||(!dvr_ondemand))
+    if ((dvr_state==0)||(dvr_state==1))
     {
         fragment = segment->current();
         if (fragment->duration() >= cduration) {
@@ -944,7 +954,7 @@ int SrsDvrSegmentPlan::update_duration(SrsSharedPtrMessage* msg)
             }
             char* payload = msg->payload;
             int size = msg->size;
-            bool is_key_frame = (SrsFlvVideo::h264(payload, size)||SrsFlvVideo::hevc(payload, size)) && SrsFlvVideo::keyframe(payload, size) && !SrsFlvVideo::sh(payload, size);
+	    bool is_key_frame = SrsFlvVideo::keyframe(payload, size);
             if (!is_key_frame) {
                 return 1;
             }
