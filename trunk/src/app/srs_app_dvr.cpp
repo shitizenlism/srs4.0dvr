@@ -154,7 +154,7 @@ srs_error_t SrsDvrSegmenter::write_video(SrsSharedPtrMessage* shared_video, SrsF
     return err;
 }
 
-srs_error_t SrsDvrSegmenter::close()
+srs_error_t SrsDvrSegmenter::close(string dvrFilename)
 {
     srs_error_t err = srs_success;
     
@@ -171,7 +171,7 @@ srs_error_t SrsDvrSegmenter::close()
     }
     
     // when tmp flv file exists, reap it.
-    if ((err = fragment->rename()) != srs_success) {
+    if ((err = fragment->rename(dvrFilename)) != srs_success) {
         return srs_error_wrap(err, "rename fragment");
     }
     
@@ -861,47 +861,109 @@ srs_error_t SrsDvrSegmentPlan::on_video(SrsSharedPtrMessage* shared_video, SrsFo
     return err;
 }
 
-srs_error_t SrsDvrSegmentPlan::update_duration(SrsSharedPtrMessage* msg)
+int SrsDvrSegmentPlan::update_duration(SrsSharedPtrMessage* msg)
 {
     srs_error_t err = srs_success;
 
     // When reopening the segment, never update the duration, because there is actually no media data.
     // @see https://github.com/ossrs/srs/issues/2717
     if (reopening_segment_) {
-        return err;
+        return 1;
     }
     
     srs_assert(segment);
     
-    // ignore if duration ok.
-    SrsFragment* fragment = segment->current();
-    if (cduration <= 0 || fragment->duration() < cduration) {
-        return err;
+    int ret=0;
+    const char *app= req->app.c_str();
+    const char *stream=req->stream.c_str();
+    char queName[100]={0};
+    char value[100]={0};
+    char sCut[] = {',','\0'};
+    char *pSubStr[4]={NULL};    // stop_record,<table-id>,<game-id>
+    SrsFragment* fragment=NULL;
+    {
+        if (dvr_state != 2){
+            snprintf(queName,sizeof(queName),"%s-%s",app,stream);
+            memset(value,0,sizeof(value));
+            ret=redis_queue_lpop(queName, value);
+            if (ret==1){
+                srs_trace("fetch from redis-que[%s]: %s", queName,value);
+                pSubStr[0] = strtok(value, sCut);   //cmd
+                pSubStr[1] = strtok(NULL, sCut);    //tableName
+                pSubStr[2] = strtok(NULL, sCut);    //roundId
+                string roundId = pSubStr[2]!=NULL?pSubStr[2]:"";
+                if (!strcmp(pSubStr[0], MSG_TYPE_START_REC)){
+                    if (dvr_saveFilename.length() == 0){
+                        //dvr_saveFilename=(dvr_postfix.length()>=1)?(roundId + dvr_postfix):roundId;
+                        dvr_state=2;
+                    } else {
+                        dvr_saveFilenameNew = (dvr_postfix.length()>=1)?(roundId + dvr_postfix):roundId;
+                        if (dvr_saveFilename == dvr_saveFilenameNew){
+                            dvr_state = 1;
+                        } else if (segment->current()->duration()>=3){
+                            dvr_state = 2;
+                        } else {
+                            dvr_saveFilename = dvr_saveFilenameNew;
+                            dvr_saveFilenameNew = "";
+                            dvr_state = 1;
+                        }
+                    }
+                    srs_trace("dvr_saveFilename= %s", dvr_saveFilename.c_str());
+                }
+                else if ((!strcmp(pSubStr[0], MSG_TYPE_STOP_REC))&&(pSubStr[2])){
+                    if (dvr_saveFilename.length() == 0){
+                        dvr_saveFilename=(dvr_postfix.length()>=1)?(roundId + dvr_postfix):roundId;
+                    }
+                    //dvr_state=2;
+                }
+            }
+
+            //check overtime-recording
+            if (dvr_state==1){
+                //moved to below to handle this situation. limit one game to 30min.
+            }
+        }
     }
     
-    // when wait keyframe, ignore if no frame arrived.
-    // @see https://github.com/ossrs/srs/issues/177
-    if (wait_keyframe) {
-        if (!msg->is_video()) {
-            return err;
+    if (((dvr_ondemand)&&((dvr_state==0)||(dvr_state==1)))||(!dvr_ondemand))
+    {
+        fragment = segment->current();
+        if (fragment->duration() >= cduration) {
+            dvr_state=2;
         }
-        
-        char* payload = msg->payload;
-        int size = msg->size;
-        bool is_key_frame = SrsFlvVideo::h264(payload, size) && SrsFlvVideo::keyframe(payload, size) && !SrsFlvVideo::sh(payload, size);
-        if (!is_key_frame) {
-            return err;
+    }
+    
+    if (dvr_state==2){
+        if (wait_keyframe) {
+            if (!msg->is_video()) {
+                return 1;
+            }
+            char* payload = msg->payload;
+            int size = msg->size;
+            bool is_key_frame = (SrsFlvVideo::h264(payload, size)||SrsFlvVideo::hevc(payload, size)) && SrsFlvVideo::keyframe(payload, size) && !SrsFlvVideo::sh(payload, size);
+            if (!is_key_frame) {
+                return 1;
+            }
         }
+    }
+    else{
+        return 1;
     }
     
     // reap segment
-    if ((err = segment->close()) != srs_success) {
-        return srs_error_wrap(err, "segment close");
+    if ((err = segment->close(dvr_saveFilename)) != srs_success) {
+        srs_error_reset(err);
+        return 0;
     }
-    
+
     // open new flv file
+    if (dvr_saveFilenameNew.length()>0){
+        dvr_saveFilename = dvr_saveFilenameNew;
+        dvr_saveFilenameNew = "";
+    }
     if ((err = segment->open()) != srs_success) {
-        return srs_error_wrap(err, "segment open");
+        //return srs_error_wrap(err, "segment open");
+        srs_error_reset(err);
     }
     
     // When update sequence header, set the reopening state to prevent infinitely recursive call.
@@ -909,10 +971,12 @@ srs_error_t SrsDvrSegmentPlan::update_duration(SrsSharedPtrMessage* msg)
     err = hub->on_dvr_request_sh();
     reopening_segment_ = false;
     if (err != srs_success) {
-        return srs_error_wrap(err, "request sh");
+        //return srs_error_wrap(err, "request sh");
+        srs_error_reset(err);
     }
     
-    return err;
+    dvr_state=0;
+    return 1;
 }
 
 srs_error_t SrsDvrSegmentPlan::on_reload_vhost_dvr(string vhost)

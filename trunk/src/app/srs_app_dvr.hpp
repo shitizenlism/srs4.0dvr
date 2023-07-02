@@ -74,7 +74,7 @@ public:
     virtual srs_error_t refresh_metadata() = 0;
     // Close current segment.
     // @remark ignore when already closed.
-    virtual srs_error_t close();
+    virtual srs_error_t close(std::string dvrFilename);
 protected:
     virtual srs_error_t open_encoder() = 0;
     virtual srs_error_t encode_metadata(SrsSharedPtrMessage* metadata) = 0;
@@ -210,7 +210,7 @@ public:
     virtual srs_error_t on_audio(SrsSharedPtrMessage* shared_audio, SrsFormat* format);
     virtual srs_error_t on_video(SrsSharedPtrMessage* shared_video, SrsFormat* format);
 private:
-    virtual srs_error_t update_duration(SrsSharedPtrMessage* msg);
+    virtual int update_duration(SrsSharedPtrMessage* msg);
 // Interface ISrsReloadHandler
 public:
     virtual srs_error_t on_reload_vhost_dvr(std::string vhost);
