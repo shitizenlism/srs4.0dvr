@@ -727,7 +727,7 @@ srs_error_t SrsDvrSessionPlan::on_publish(SrsRequest* r)
         return err;
     }
     
-    if ((err = segment->close()) != srs_success) {
+    if ((err = segment->close("")) != srs_success) {
         return srs_error_wrap(err, "close segment");
     }
     
@@ -748,7 +748,7 @@ void SrsDvrSessionPlan::on_unpublish()
     }
     
     // ignore error.
-    srs_error_t err = segment->close();
+    srs_error_t err = segment->close("");
     if (err != srs_success) {
         srs_warn("ignore flv close error %s", srs_error_desc(err).c_str());
     }
@@ -765,6 +765,10 @@ SrsDvrSegmentPlan::SrsDvrSegmentPlan()
     cduration = 0;
     wait_keyframe = false;
     reopening_segment_ = false;
+
+    dvr_saveFilename = "";
+    dvr_state = 0;
+    dvr_postfix = "";
 }
 
 SrsDvrSegmentPlan::~SrsDvrSegmentPlan()
@@ -802,9 +806,9 @@ srs_error_t SrsDvrSegmentPlan::on_publish(SrsRequest* r)
         return err;
     }
     
-    if ((err = segment->close()) != srs_success) {
-        return srs_error_wrap(err, "segment close");
-    }
+    //if ((err = segment->close("")) != srs_success) {
+    //    return srs_error_wrap(err, "segment close");
+    //}
     
     if ((err = segment->open()) != srs_success) {
         return srs_error_wrap(err, "segment open");
@@ -819,7 +823,7 @@ void SrsDvrSegmentPlan::on_unpublish()
 {
     srs_error_t err = srs_success;
 
-    if ((err = segment->close()) != srs_success) {
+    if ((err = segment->close(dvr_saveFilename)) != srs_success) {
         srs_warn("ignore err %s", srs_error_desc(err).c_str());
         srs_freep(err);
     }

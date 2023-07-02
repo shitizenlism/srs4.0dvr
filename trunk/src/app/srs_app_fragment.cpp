@@ -114,21 +114,52 @@ srs_error_t SrsFragment::unlink_tmpfile()
     return err;
 }
 
-srs_error_t SrsFragment::rename()
+srs_error_t SrsFragment::rename(string dvrFilename)
 {
     srs_error_t err = srs_success;
     
-    string full_path = fullpath();
+    string full_path,pfix;
+    char subDir[150]={0},*p=NULL;
+    char fullDir[150]={0};
+    int ret=0;
+    full_path = fullpath();
+    pfix=get_postfix();
+    if (!dvrFilename.empty()){
+        strncpy(fullDir,full_path.c_str(),sizeof(fullDir));
+        p=strrchr(fullDir,'/');
+        strncpy(subDir,fullDir,p-fullDir+1);
+        strcat(subDir,dvrFilename.c_str());
+        strcat(subDir,pfix.c_str());
+        full_path=subDir;
+        if (access(full_path.c_str(), F_OK) ==0){
+            srs_trace("%s exists already!", full_path.c_str());
+            string filename = srs_path_filename(full_path);
+            char newFilename[150] = {0};
+            int i=0;
+            for (i=0; i<100; i++){
+                snprintf(newFilename,sizeof(newFilename),"%s-%02d%s",filename.c_str(),i,pfix.c_str());
+                if (access(newFilename, F_OK) !=0){
+                    ret = ::rename(full_path.c_str(), newFilename);
+                    srs_trace("rename %s to %s. ret=%d", full_path.c_str(), newFilename, ret);
+                    break;
+                }
+            }
+            if (100 == i){
+                full_path = fullpath();
+            }
+        }   
+    }
     string tmp_file = tmppath();
     int tempdur = srsu2msi(duration());
     if (true) {
-	   std::stringstream ss;
-	   ss << tempdur;
-	   full_path = srs_string_replace(full_path, "[duration]", ss.str());
+       std::stringstream ss;
+       ss << tempdur;
+       full_path = srs_string_replace(full_path, "[duration]", ss.str());
     }
+    srs_verbose("rename %s to %s",tmp_file.c_str(),full_path.c_str());
 
-    int r0 = ::rename(tmp_file.c_str(), full_path.c_str());
-    if (r0 < 0) {
+    ret = ::rename(tmp_file.c_str(), full_path.c_str());
+    if (ret < 0) {
         return srs_error_new(ERROR_SYSTEM_FRAGMENT_RENAME, "rename %s to %s", tmp_file.c_str(), full_path.c_str());
     }
 
