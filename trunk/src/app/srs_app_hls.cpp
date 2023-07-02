@@ -73,7 +73,7 @@ srs_error_t SrsHlsSegment::rename()
         uri = srs_string_replace(uri, "[duration]", ss.str());
     }
 
-    return SrsFragment::rename();
+    return SrsFragment::rename("");
 }
 
 SrsDvrAsyncCallOnHls::SrsDvrAsyncCallOnHls(SrsContextId c, SrsRequest* r, string p, string t, string m, string mu, int s, srs_utime_t d)

@@ -53,7 +53,7 @@ public:
     // Unlink the temporary file.
     virtual srs_error_t unlink_tmpfile();
     // Rename the temp file to final file.
-    virtual srs_error_t rename(std::string dvrFilename);
+    virtual srs_error_t rename(std::string dvrFilename="");
 };
 
 // The fragment window manage a series of fragment.
