@@ -43,6 +43,7 @@ public:
     virtual std::string fullpath();
     // Set the full path of fragment.
     virtual void set_path(std::string v);
+    virtual void set_postfix(std::string v);
     virtual std::string get_postfix();
     // Unlink the fragment, to delete the file.
     // @remark Ignore any error.

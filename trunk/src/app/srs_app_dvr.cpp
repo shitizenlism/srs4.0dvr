@@ -80,7 +80,13 @@ srs_error_t SrsDvrSegmenter::open()
         return srs_error_new(ERROR_DVR_CANNOT_APPEND, "DVR can't append to exists path=%s", path.c_str());
     }
     fragment->set_path(path);
-    
+    if (srs_string_ends_with(path, ".mp4")){
+        fragment->set_postfix(".mp4");
+    }
+    else{
+	fragment->set_postfix(".flv");
+    }
+ 
     // create dir first.
     if ((err = fragment->create_dir()) != srs_success) {
         return srs_error_wrap(err, "create dir");

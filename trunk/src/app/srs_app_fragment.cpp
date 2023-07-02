@@ -71,6 +71,11 @@ void SrsFragment::set_path(string v)
     filepath = v;
 }
 
+void SrsFragment::set_postfix(string v)
+{
+    postfix = v;
+}
+
 srs_error_t SrsFragment::unlink_file()
 {
     srs_error_t err = srs_success;

@@ -246,7 +246,7 @@ int redis_queue_lpop(const char *key, char *value)
 		ret=-2;
 	}
 	t2 = usec();
-	printf("lpop cost=%.3f ms\n",(t2-t1)/1000.0);
+	//printf("lpop cost=%.3f ms\n",(t2-t1)/1000.0);
 	pthread_mutex_unlock(&gRedisConn.ThrdLock);
 	return ret;
 }
