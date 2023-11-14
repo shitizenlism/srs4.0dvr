@@ -7,6 +7,8 @@ The changelog for SRS.
 <a name="v4-changes"></a>
 
 ## SRS 4.0 Changelog
+* v4.0, 2023-11-4, config add auth_gate{}
+* v4.0, 2023-8-4, config add redis_server{}
 
 * v4.0, 2023-08-02, Fix [#3749](https://github.com/ossrs/srs/issues/3749): HLS: Ignore empty NALU to avoid error. v4.0.271
 * v4.0, 2023-07-21, Merge [#3695](https://github.com/ossrs/srs/pull/3695): API: Fix HTTPS callback issue using SNI in TLS client handshake. v4.0.270 (#3695)

@@ -998,6 +998,9 @@ public:
     // Whether http stream enabled.
     // TODO: FIXME: rename to http_static.
     virtual bool get_http_stream_enabled();
+    virtual bool get_auth_gate_igress();
+    virtual bool get_auth_gate_egress();
+
     // Get the http stream listen port.
     virtual std::string get_http_stream_listen();
     // Get the http stream root dir.

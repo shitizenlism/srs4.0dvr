@@ -2468,7 +2468,7 @@ srs_error_t SrsConfig::check_normal_config()
             && n != "srs_log_tank" && n != "srs_log_level" && n != "srs_log_file"
             && n != "max_connections" && n != "daemon" && n != "heartbeat"
             && n != "http_api" && n != "stats" && n != "vhost" && n != "pithy_print_ms"
-            && n != "redis_server" 
+            && n != "redis_server"  && n != "auth_gate" 
             && n != "http_server" && n != "stream_caster" && n != "rtc_server" && n != "srt_server"
             && n != "utc_time" && n != "work_dir" && n != "asprocess" && n != "server_id"
             && n != "ff_log_level" && n != "grace_final_wait" && n != "force_grace_quit"
@@ -7113,6 +7113,40 @@ string SrsConfig::get_http_stream_listen()
     }
     
     return conf->arg0();
+}
+
+bool SrsConfig::get_auth_gate_igress()
+{
+    static bool DEFAULT = false;
+    
+    SrsConfDirective* conf = root->get("auth_gate");
+    if (!conf) {
+        return DEFAULT;
+    }
+    
+    conf = conf->get("igress_enabled");
+    if (!conf || conf->arg0().empty()) {
+        return DEFAULT;
+    }
+    
+    return SRS_CONF_PERFER_FALSE(conf->arg0());
+}
+
+bool SrsConfig::get_auth_gate_egress()
+{
+    static bool DEFAULT = false;
+    
+    SrsConfDirective* conf = root->get("auth_gate");
+    if (!conf) {
+        return DEFAULT;
+    }
+    
+    conf = conf->get("egress_enabled");
+    if (!conf || conf->arg0().empty()) {
+        return DEFAULT;
+    }
+    
+    return SRS_CONF_PERFER_FALSE(conf->arg0());
 }
 
 string SrsConfig::get_http_stream_dir()
